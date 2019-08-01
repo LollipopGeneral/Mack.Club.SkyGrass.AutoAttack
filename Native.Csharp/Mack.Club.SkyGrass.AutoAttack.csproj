@@ -99,6 +99,7 @@
     <Compile Include="App\Event\Event_GroupMessage.cs" />
     <Compile Include="App\Event\Event_OtherMessage.cs" />
     <Compile Include="App\Event\Event_UserExpand.cs" />
+    <Compile Include="App\Model\GameData.cs" />
     <Compile Include="App\Interface\IEvent_AppStatus.cs" />
     <Compile Include="App\Interface\IEvent_DiscussMessage.cs" />
     <Compile Include="App\Interface\IEvent_FriendMessage.cs" />
