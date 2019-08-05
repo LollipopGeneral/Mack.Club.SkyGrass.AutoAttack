@@ -99,6 +99,7 @@
     <Compile Include="App\Event\Event_GroupMessage.cs" />
     <Compile Include="App\Event\Event_OtherMessage.cs" />
     <Compile Include="App\Event\Event_UserExpand.cs" />
+    <Compile Include="App\GameManager.cs" />
     <Compile Include="App\Model\GameData.cs" />
     <Compile Include="App\Interface\IEvent_AppStatus.cs" />
     <Compile Include="App\Interface\IEvent_DiscussMessage.cs" />
@@ -110,8 +111,6 @@
     <Compile Include="App\Model\FileUploadMessageEventArgs.cs" />
     <Compile Include="App\Model\FriendAddRequestEventArgs.cs" />
     <Compile Include="App\Model\FriendIncreaseEventArgs.cs" />
-    <Compile Include="App\Model\GameUserListModel.cs" />
-    <Compile Include="App\Model\GameUserModel.cs" />
     <Compile Include="App\Model\GroupAddRequestEventArgs.cs" />
     <Compile Include="App\Model\GroupManageAlterEventArgs.cs" />
     <Compile Include="App\Model\GroupMemberAlterEventArgs.cs" />

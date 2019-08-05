@@ -7,6 +7,7 @@ using System.Text;
 using Native.Csharp.App.Model;
 using Native.Csharp.App.Interface;
 using System.Text.RegularExpressions;
+using System.IO;
 
 namespace Native.Csharp.App.Event
 {
@@ -21,31 +22,62 @@ namespace Native.Csharp.App.Event
 		/// <param name="e">事件的附加参数</param>
 		public void ReceiveGroupMessage (object sender, GroupMessageEventArgs e)
 		{
-            /*
-             [CQ:at,qq=xxxxx]
-轮回疯狂暗示一共招募了225个角色，当前阵容(6)：
-【0】[CQ:emoji,id=127769] SSR 棒哥 *背刺* [CQ:emoji,id=9876]️78 [CQ:emoji,id=128737]️49 [CQ:emoji,id=9829]102/159
-【0】[CQ:emoji,id=127775][CQ:emoji,id=127775] SSR 葡萄好大一颗 *背刺* [CQ:emoji,id=9876]️59 [CQ:emoji,id=128737]️28 [CQ:emoji,id=9829]114/148
-【0】[CQ:emoji,id=127775] UR 段艺璇 *尖刺防御* [CQ:emoji,id=9876]️61 [CQ:emoji,id=128737]️39 [CQ:emoji,id=9829]54/112
-【0】[CQ:emoji,id=127775] SSR 210 *尖刺防御* [CQ:emoji,id=9876]️54 [CQ:emoji,id=128737]️36 [CQ:emoji,id=9829]95/95
-【0】[CQ:emoji,id=127775] SSR 师兄 *嗜血* [CQ:emoji,id=9876]️54 [CQ:emoji,id=128737]️27 [CQ:emoji,id=9829]110/110
-【0】[CQ:emoji,id=127775][CQ:emoji,id=127775] SR 汪束  [CQ:emoji,id=9876]️51 [CQ:emoji,id=128737]️28 [CQ:emoji,id=9829]117/117
-剩余招募值：0
-             */
-            #region 解析每个人的当前阵容，分析剩余血量
-
+            if(e.FromQQ != 2787640020)
+            {
+                e.Handled = false;
+                return;
+            }
             string msg = e.Msg;
-            msg = msg.Replace("\r", "");
-            // lines count = 8
-            string[] lines = msg.Split('\n');
 
-            // 匹配表情符号
-            string pattern1 = @"(\[CQ:emoji,id=[0-9]{0,6}\])";
-            // 匹配技能
-            string pattern2 = @"\*\S*?\*";
-            // 匹配等级
-            string pattern3 = @"(N)|(R)|(SR)|(SSR)|(UR)";
+            #region 有人发生了对战，或者切换了阵容，或者查看自己阵容，管它上面，先查它出战阵容，看看能不能补刀
+            try
+            {
+                if (msg.IndexOf("对战") > -1)
+                {
+                    msg = msg.Replace("\r", "");
+                    string[] lines = msg.Split('\n');
+
+                    List<string> names = new List<string>();
+                    foreach (var line in lines)
+                    {
+                        if (line.IndexOf("对战") > -1)
+                        {
+                            var ret = Regex.Matches(line, @"【\S*?\】");
+                            foreach (Match item in ret)
+                            {
+                                names.Add(item.Value.Replace("【", "").Replace("】", ""));
+                            }
+                        }
+                    }
+
+                    foreach (var nickname in names)
+                    {
+                        GameManager.CheckFromGroupMessage(nickname);
+                    }
+                }
+
+                if (msg.IndexOf("一共招募了") > -1)
+                {
+                    msg = msg.Replace("\r", "");
+                    string[] lines = msg.Split('\n');
+
+                    foreach (var line in lines)
+                    {
+                        if (line.IndexOf("一共招募了") > -1)
+                        {
+                            string nikename = line.Substring(0, line.IndexOf("一共招募了"));
+                            GameManager.CheckFromGroupMessage(nikename);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllLines("GroupMessageError.log", new List<string> { msg, ex.StackTrace }, Encoding.UTF8);
+            }
             
+
+
             #endregion
 
             e.Handled = false;   // 关于返回说明, 请参见 "Event_FriendMessage.ReceiveFriendMessage" 方法

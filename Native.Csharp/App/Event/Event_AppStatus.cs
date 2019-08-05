@@ -84,65 +84,16 @@ namespace Native.Csharp.App.Event
                     if (minute == 55)
                     {
                         Common.CqApi.SendGroupMessage(groupId, "梭哈");
+                        Thread.Sleep(5 * 1000);
                     }
 
                     if (minute % 5 == 0)
                     {
                         try
                         {
-                            #region 刷新游戏数据
-                            Common.CqApi.SendGroupMessage(groupId, "出击 觉醒");
-                            string listUrl = "http://172.81.250.91:82/chessUser";
-                            string listJsonStr = wc.DownloadString(listUrl);
-                            List<GameUserList> userList = JsonConvert.DeserializeObject<List<GameUserList>>(listJsonStr);
-                            #endregion
-
-                            #region 复仇
-                            string selfUrl = "http://172.81.250.91:82/oneUser";
-                            Dictionary<string, object> dic = new Dictionary<string, object>();
-                            dic["nickname"] = "棒哥";
-
-                            string selfJsonStr = Common.PostPocketApi(selfUrl, JsonConvert.SerializeObject(dic));
-                            GameUserModelJson modelJson = JsonConvert.DeserializeObject<GameUserModelJson>(selfJsonStr);
-                            List<string> enemyList = new List<string>();
-                            int rank = 0;
-                            if (modelJson.code == 200)
-                            {
-                                rank = modelJson.data.KO - 1;
-                                foreach (var enemy in modelJson.data.revenge)
-                                {
-                                    // 可复仇
-                                    if (enemy.revenge < 6)
-                                    {
-                                        enemyList.Add(enemy.nickname[0]);
-                                    }
-                                }
-                            }
-                            if (enemyList.Count != 0)
-                            {
-                                Common.CqApi.SendGroupMessage(groupId, "出击 觉醒");
-                                foreach (var enemyName in enemyList)
-                                {
-                                    Common.CqApi.SendGroupMessage(groupId, $"复仇 {enemyName}");
-                                    Thread.Sleep(1 * 1000);
-                                }
-                                Common.CqApi.SendGroupMessage(groupId, "出击 尖刺防御");
-                            }
-                            #endregion
-
-                            if (minute == 55)
-                            {
-                                #region 全军出击
-                                Common.CqApi.SendGroupMessage(groupId, "出击 觉醒");
-                                string listUrl = "http://172.81.250.91:82/chessUser";
-                                string listJsonStr = wc.DownloadString(listUrl);
-                                List<GameUserList> userList = JsonConvert.DeserializeObject<List<GameUserList>>(listJsonStr);
-                                int idx = rank == 0 ? 0 : rank - 1;
-                                var target = userList[idx];
-                                Common.CqApi.SendGroupMessage(groupId, $"全军出击 {target.nickname[0]}");
-                                Common.CqApi.SendGroupMessage(groupId, "出击 尖刺防御");
-                                #endregion
-                            }
+                            #region 刷新自己数据
+                            GameManager.GetUserInfo();
+                            #endregion                            
 
                         }
                         catch (Exception ex)
